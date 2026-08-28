@@ -1,0 +1,50 @@
+# Motor IQ — stack de producción para Coolify (build pack: Docker Compose).
+#
+# Coolify enruta el dominio público al servicio `frontend` (nginx), que sirve la
+# SPA compilada y proxyea /api y /uploads al backend por la red interna.
+# db y backend NO publican puertos al host.
+#
+# Variables esperadas (se cargan como secrets en Coolify):
+#   POSTGRES_PASSWORD  · POPS_SECRET_KEY  · POPS_CORS_ORIGINS
+#   POPS_AI_PROVIDER / POPS_AI_API_KEY / POPS_AI_MODEL / POPS_AI_BASE_URL (opcionales)
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: motoriq
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: motoriq
+    volumes:
+      - motoriq_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U motoriq"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build: ./backend
+    environment:
+      POPS_DATABASE_URL: postgresql+psycopg://motoriq:${POSTGRES_PASSWORD}@db:5432/motoriq
+      POPS_DEBUG: "false"
+      POPS_DEMO_MODE: "true"
+      POPS_SECRET_KEY: ${POPS_SECRET_KEY}
+      POPS_CORS_ORIGINS: ${POPS_CORS_ORIGINS:-https://motoriq.becode.com.ar}
+      POPS_AI_PROVIDER: ${POPS_AI_PROVIDER:-}
+      POPS_AI_API_KEY: ${POPS_AI_API_KEY:-}
+      POPS_AI_MODEL: ${POPS_AI_MODEL:-}
+      POPS_AI_BASE_URL: ${POPS_AI_BASE_URL:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - motoriq_uploads:/app/uploads
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+
+volumes:
+  motoriq_pgdata:
+  motoriq_uploads:

@@ -1,0 +1,28 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Bases locales (contienen datos y la API key de IA de la org)
+*.db
+*.db-*
+
+# Node / builds
+node_modules/
+dist/
+
+# Archivos subidos por la app (se regeneran con el seed)
+backend/uploads/
+
+# Tests E2E
+frontend/test-results/
+frontend/playwright-report/
+
+# Entorno y secretos
+.env
+*.local
+
+# Caches de tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/

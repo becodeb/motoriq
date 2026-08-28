@@ -1,0 +1,23 @@
+line-length = 112
+target-version = "py312"
+
+[lint]
+select = ["E4", "E7", "E9", "F", "I", "B", "UP", "SIM", "RUF"]
+ignore = [
+  # Handlers de eventos/automatizaciones capturan Exception a propósito:
+  # un handler roto no debe voltear el request (está documentado en cada sitio).
+  "BLE001",
+  # ifs anidados legibles en cascadas de reglas (scoring/automations).
+  "SIM102",
+  # Patrón estándar de SQLAlchemy: mapped_column(JSON, default=list/dict).
+  "RUF012",
+  # Tipografía española intencional en strings/comentarios (× · ↔ “ ” …).
+  "RUF001",
+  "RUF002",
+  "RUF003",
+  # Page[T] con Generic clásico: compatibilidad probada con Pydantic.
+  "UP046",
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["S101"]

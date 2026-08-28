@@ -1,0 +1,46 @@
+# Stack completo de POPS con PostgreSQL.
+#   docker compose up --build
+#   → frontend en http://localhost:8080 · API en http://localhost:8000
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: pops
+      POSTGRES_PASSWORD: pops
+      POSTGRES_DB: pops
+    volumes:
+      - pops_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pops"]
+      interval: 3s
+      timeout: 3s
+      retries: 15
+    ports:
+      - "5433:5432"
+
+  backend:
+    build: ./backend
+    environment:
+      POPS_DATABASE_URL: postgresql+psycopg://pops:pops@db:5432/pops
+      POPS_DEBUG: "false"
+      POPS_DEMO_MODE: "true"
+      POPS_SECRET_KEY: cambiar-esta-clave-en-produccion
+      POPS_CORS_ORIGINS: http://localhost:8080
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    volumes:
+      - pops_uploads:/app/uploads
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+volumes:
+  pops_pgdata:
+  pops_uploads:
