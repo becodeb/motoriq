@@ -80,9 +80,13 @@ DEFAULT_COST = (1.0, 4.0)
 
 
 def estimate_cost(model: str, input_tokens: int, output_tokens: int) -> float:
+    # OpenRouter antepone el proveedor ("openai/gpt-4o-mini", "anthropic/claude-haiku-4.5").
     model_lower = (model or "").lower()
+    if "/" in model_lower and not model_lower.startswith("minimaxai/"):
+        model_lower = model_lower.split("/", 1)[1]
     costs = DEFAULT_COST
-    for prefix, prices in MODEL_COSTS_PER_MTOK.items():
+    # El prefijo más largo gana: "gpt-4o-mini" no debe tomar el precio de "gpt-4o".
+    for prefix, prices in sorted(MODEL_COSTS_PER_MTOK.items(), key=lambda item: -len(item[0])):
         if model_lower.startswith(prefix):
             costs = prices
             break

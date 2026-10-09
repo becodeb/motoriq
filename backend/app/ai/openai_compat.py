@@ -1,6 +1,6 @@
 """Provider para APIs compatibles con OpenAI Chat Completions.
 
-Cubre OpenAI, Gemini (endpoint compatible), Ollama y cualquier servidor
+Cubre OpenAI, Gemini (endpoint compatible), OpenRouter, Ollama y cualquier servidor
 compatible configurando base_url.
 """
 
@@ -13,6 +13,7 @@ from app.ai.base import AIProvider, AIProviderError, AIResponse, ToolCall, ToolS
 DEFAULT_BASE_URLS = {
     "openai": "https://api.openai.com/v1",
     "gemini": "https://generativelanguage.googleapis.com/v1beta/openai",
+    "openrouter": "https://openrouter.ai/api/v1",
 }
 
 

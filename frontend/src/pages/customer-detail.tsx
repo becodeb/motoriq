@@ -27,7 +27,7 @@ import { ColorBadge, CustomerStatusBadge, HealthDot, SourceBadge, StageBadge } f
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Field } from "@/components/shared/field";
-import { ScoreRingExplained } from "@/components/shared/score-ring";
+import { ScoreBadge, ScoreRingExplained } from "@/components/shared/score-ring";
 import { UserChip } from "@/components/shared/user-chip";
 import { VehicleThumb } from "@/components/shared/vehicle-thumb";
 import { Button } from "@/components/ui/button";
@@ -62,7 +62,7 @@ import { CustomerPicker } from "@/features/pickers";
 import { useStageMover } from "@/features/opportunities/stage-move";
 import { useStages } from "@/hooks/use-org";
 import { api, ApiError } from "@/lib/api";
-import { BODY_TYPES, SCORE_LABELS } from "@/lib/constants";
+import { BODY_TYPES } from "@/lib/constants";
 import { dateFull, money, relative, timelineDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { isManager, useAuth } from "@/stores/auth";
@@ -219,16 +219,16 @@ export function CustomerDetailPage() {
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="font-display text-2xl font-bold tracking-tight">{customer.full_name}</h1>
+            <ScoreBadge label={customer.score_label} />
             <CustomerStatusBadge status={customer.status} />
             {customer.awaiting_reply ? (
               <span className="text-xs font-semibold text-pops">● esperando respuesta</span>
             ) : null}
           </div>
           <p className="mt-0.5 text-sm text-muted-foreground">
-            {SCORE_LABELS[customer.score_label]?.emoji} {SCORE_LABELS[customer.score_label]?.label}
             {customer.interested_vehicle ? (
               <>
-                {" · Interesado en "}
+                {"Interesado en "}
                 <Link to={`/vehiculos/${customer.interested_vehicle.id}`} className="text-foreground hover:underline">
                   {customer.interested_vehicle.title} {customer.interested_vehicle.year}
                 </Link>

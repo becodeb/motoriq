@@ -5,7 +5,7 @@ import { useNavigate } from "react-router";
 import { SourceBadge } from "@/components/shared/badges";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
-import { ScoreRing } from "@/components/shared/score-ring";
+import { ScoreRing, scoreAccentStyle } from "@/components/shared/score-ring";
 import { UserChip } from "@/components/shared/user-chip";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -66,6 +66,7 @@ export function LeadsPage() {
                 "cursor-pointer flex-row items-center gap-4 px-4 py-3 transition-colors hover:border-ring/40",
                 customer.awaiting_reply && "border-pops/40",
               )}
+              style={scoreAccentStyle(customer.score_label)}
               onClick={() => navigate(`/clientes/${customer.id}`)}
             >
               <ScoreRing score={customer.lead_score} label={customer.score_label} size="md" />

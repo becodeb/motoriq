@@ -22,6 +22,23 @@ class LoginRequest(BaseModel):
     password: str = Field(min_length=1, max_length=128)
 
 
+class RegisterRequest(BaseModel):
+    company_name: str = Field(min_length=2, max_length=120)
+    first_name: str = Field(min_length=1, max_length=80)
+    last_name: str = Field(min_length=1, max_length=80)
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=128)
+    phone: str | None = Field(default=None, max_length=40)
+    currency: str = Field(default="USD", min_length=3, max_length=8)
+    timezone: str = Field(default="America/Argentina/Buenos_Aires", max_length=64)
+
+
+class PublicConfig(BaseModel):
+    app_name: str
+    demo_mode: bool
+    allow_signup: bool
+
+
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"

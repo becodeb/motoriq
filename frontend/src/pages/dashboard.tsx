@@ -14,11 +14,12 @@ import {
 import { Link, useNavigate } from "react-router";
 import { toast } from "sonner";
 
-import { ScoreRing } from "@/components/shared/score-ring";
+import { ScoreRing, scoreAccentStyle } from "@/components/shared/score-ring";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
+import { GettingStarted } from "@/features/getting-started";
 import { api } from "@/lib/api";
 import { currentHourInOrgTz, longDate, timeOnly } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -54,14 +55,14 @@ function CountChip({
     <Link
       to={to}
       className={cn(
-        "group flex min-w-0 flex-col gap-0.5 rounded-xl border bg-card px-4 py-3 transition-colors hover:border-ring/40",
+        "group flex min-w-0 flex-col gap-1.5 rounded-2xl border border-border/80 bg-card px-4 py-4 shadow-soft transition-all hover:-translate-y-0.5 hover:border-pops/30 hover:shadow-lift",
         tone === "danger" && value > 0 && "border-destructive/40 bg-destructive/5",
         tone === "pops" && value > 0 && "border-pops/40 bg-pops-soft/50",
       )}
     >
       <span
         className={cn(
-          "font-display text-2xl font-bold nums leading-none",
+          "font-display text-[28px] font-bold nums leading-none tracking-tight",
           tone === "danger" && value > 0 && "text-destructive",
           tone === "pops" && value > 0 && "text-pops",
         )}
@@ -79,11 +80,12 @@ function PriorityCardView({ card }: { card: PriorityCard }) {
   const Icon = meta.icon;
   return (
     <Card
-      className="cursor-pointer gap-3 px-4 py-3.5 transition-colors hover:border-ring/40"
+      className="cursor-pointer gap-3 px-4 py-4 transition-all hover:-translate-y-0.5 hover:border-pops/30 hover:shadow-lift"
+      style={scoreAccentStyle(card.customer.score_label)}
       onClick={() => navigate(`/clientes/${card.customer.id}`)}
     >
       <div className="flex items-start gap-3">
-        <span className={cn("mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg", meta.className)}>
+        <span className={cn("mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl", meta.className)}>
           <Icon className="size-4" />
         </span>
         <div className="min-w-0 flex-1">
@@ -201,16 +203,18 @@ export function DashboardPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="font-display text-[26px] font-bold tracking-tight">
-          {greeting()}, {user?.first_name} <span className="text-pops">·</span>
+        <p className="text-sm font-medium text-muted-foreground first-letter:uppercase">{longDate()}</p>
+        <h1 className="mt-0.5 font-display text-[30px] font-bold tracking-tight">
+          {greeting()}, <span className="text-highlight">{user?.first_name}</span>
         </h1>
-        <p className="mt-0.5 text-sm text-muted-foreground">{longDate()}</p>
       </div>
+
+      <GettingStarted />
 
       {query.isPending ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-[74px] rounded-xl" />
+            <Skeleton key={i} className="h-[84px] rounded-2xl" />
           ))}
         </div>
       ) : data ? (
@@ -227,7 +231,7 @@ export function DashboardPage() {
       {data && data.new_vehicle_matches > 0 ? (
         <Link
           to="/inteligencia"
-          className="flex items-center gap-3 rounded-xl border border-pops/40 bg-pops-soft/60 px-4 py-3 transition-colors hover:border-pops"
+          className="flex items-center gap-3 rounded-2xl border border-pops/30 bg-pops-soft/60 px-4 py-3.5 transition-colors hover:border-pops"
         >
           <Target className="size-5 shrink-0 text-pops" />
           <p className="text-sm">

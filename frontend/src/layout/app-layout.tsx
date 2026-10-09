@@ -75,7 +75,7 @@ export function AppLayout() {
       <Sidebar unreadCount={unread.data?.count ?? 0} />
 
       <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
-        <SheetContent side="left" className="w-72 bg-sidebar p-0">
+        <SheetContent side="left" className="dark w-[272px] border-sidebar-border bg-sidebar p-0 text-foreground">
           <SheetHeader className="sr-only">
             <SheetTitle>Navegación</SheetTitle>
             <SheetDescription>Menú principal de Motor IQ</SheetDescription>
@@ -84,9 +84,9 @@ export function AppLayout() {
         </SheetContent>
       </Sheet>
 
-      <div className="lg:pl-[232px]">
+      <div className="lg:pl-[256px]">
         <Topbar onOpenMobileNav={() => setMobileNavOpen(true)} />
-        <main className="mx-auto w-full max-w-[1440px] px-4 py-5 lg:px-6">
+        <main className="mx-auto w-full max-w-[1440px] px-4 py-6 lg:px-8">
           <Outlet />
         </main>
       </div>

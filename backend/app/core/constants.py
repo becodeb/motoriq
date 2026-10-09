@@ -76,7 +76,7 @@ INSIGHT_KINDS = (
 INSIGHT_STATUSES = ("nueva", "vista", "descartada", "accionada")
 
 AI_FEATURES = ("resumen_cliente", "sugerencia_respuesta", "chat", "insight")
-AI_PROVIDERS = ("openai", "anthropic", "gemini", "openai_compat")
+AI_PROVIDERS = ("openai", "anthropic", "gemini", "openrouter", "openai_compat")
 
 AUTOMATION_TRIGGERS = (
     "lead.created",

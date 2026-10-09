@@ -68,3 +68,27 @@ def test_perdida_requiere_motivo(client, org, gerente_headers):
 
     lost_customer = client.get(f"/api/v1/customers/{customer['id']}", headers=gerente_headers).json()
     assert lost_customer["status"] == "perdido"
+
+
+def test_cliente_eliminado_desaparece_del_pipeline(client, org, gerente_headers):
+    vehicle = create_vehicle(client, gerente_headers)
+    customer = create_customer(client, gerente_headers, interested_vehicle_id=vehicle["id"])
+    opps = client.get(
+        "/api/v1/opportunities", params={"customer_id": customer["id"]}, headers=gerente_headers
+    ).json()["items"]
+    assert opps, "el cliente con vehículo de interés debería tener una oportunidad"
+    kanban_ids = {o["id"] for o in client.get("/api/v1/opportunities/kanban", headers=gerente_headers).json()}
+    assert opps[0]["id"] in kanban_ids
+
+    deleted = client.delete(f"/api/v1/customers/{customer['id']}", headers=gerente_headers)
+    assert deleted.status_code == 200
+
+    kanban_ids = {o["id"] for o in client.get("/api/v1/opportunities/kanban", headers=gerente_headers).json()}
+    assert opps[0]["id"] not in kanban_ids
+    listed = client.get(
+        "/api/v1/opportunities", params={"customer_id": customer["id"]}, headers=gerente_headers
+    ).json()
+    assert listed["total"] == 0
+    # Lo pendiente se cierra: la oportunidad no queda abierta en analytics/pronósticos.
+    detail = client.get(f"/api/v1/opportunities/{opps[0]['id']}", headers=gerente_headers).json()
+    assert detail["status"] == "perdida"

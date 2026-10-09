@@ -3,105 +3,116 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ── Motor IQ design tokens ─────────────────────────────────────────────
-   Dirección: "tablero de instrumentos". Porcelana fría / asfalto.
-   El naranja competición (--pops) se reserva para lo caliente:
-   intención de compra, radar, acciones primarias de venta. */
+   Paleta: shadow grey #242426 · grey #7D7D7D · ocean blue #198AC2 · porcelain #FCFFFD.
+   --brand es el azul exacto para rellenos (logo, navegación activa, botones).
+   --pops es el azul de acento para texto e íconos: en claro va un punto más
+   oscuro (#157DB0) para que se lea bien sobre blanco; en oscuro, un punto más claro. */
 
 :root {
-  --background: #f6f7f9;
-  --foreground: #10151d;
-  --card: #ffffff;
-  --card-foreground: #10151d;
-  --popover: #ffffff;
-  --popover-foreground: #10151d;
-  --primary: #151b24;
-  --primary-foreground: #f6f8fa;
-  --secondary: #eceef2;
-  --secondary-foreground: #1c232e;
-  --muted: #eef0f4;
-  --muted-foreground: #5d6a7c;
-  --accent: #edf0f4;
-  --accent-foreground: #10151d;
+  --background: #f2f4f3;
+  --foreground: #242426;
+  --card: #fcfffd;
+  --card-foreground: #242426;
+  --popover: #fcfffd;
+  --popover-foreground: #242426;
+  --primary: #242426;
+  --primary-foreground: #fcfffd;
+  --secondary: #e9ecea;
+  --secondary-foreground: #242426;
+  --muted: #eceeed;
+  --muted-foreground: #66666a;
+  --accent: #e9f3f8;
+  --accent-foreground: #242426;
   --destructive: #d92d20;
   --destructive-foreground: #ffffff;
-  --border: #e3e7ec;
-  --input: #dbe0e7;
-  --ring: #e85d2c;
+  --border: #dfe2e0;
+  --input: #cfd3d1;
+  --ring: #198ac2;
 
-  --pops: #e85d2c;
-  --pops-foreground: #ffffff;
-  --pops-soft: #fdeee6;
+  --pops: #157db0;
+  --pops-foreground: #fcfffd;
+  --pops-soft: #e3f1f8;
+  --brand: #198ac2;
+  --brand-foreground: #fcfffd;
 
-  --sidebar: #fbfcfd;
-  --sidebar-foreground: #384250;
-  --sidebar-border: #e6eaef;
-  --sidebar-accent: #eef0f4;
-  --sidebar-accent-foreground: #10151d;
+  --sidebar: #242426;
+  --sidebar-foreground: #a9a9ad;
+  --sidebar-border: #2f2f32;
+  --sidebar-accent: #2f2f33;
+  --sidebar-accent-foreground: #fcfffd;
 
-  --score-frio: #5a86d6;
-  --score-tibio: #dd9a2b;
-  --score-caliente: #e85d2c;
-  --score-cierre: #1fa06c;
+  /* Intención de compra: celeste → amarillo → naranja → verde */
+  --score-frio: #5bb8e6;
+  --score-tibio: #eab308;
+  --score-caliente: #f97316;
+  --score-cierre: #16a34a;
 
-  --health-green: #1fa06c;
-  --health-yellow: #dd9a2b;
+  --health-green: #16a34a;
+  --health-yellow: #e0a106;
   --health-red: #d92d20;
 
-  --chart-1: #e85d2c;
-  --chart-2: #5a86d6;
-  --chart-3: #1fa06c;
-  --chart-4: #dd9a2b;
-  --chart-5: #8b7ce8;
+  --chart-1: #198ac2;
+  --chart-2: #242426;
+  --chart-3: #7d7d7d;
+  --chart-4: #8ccbe8;
+  --chart-5: #e5484d;
 
-  --radius: 0.625rem;
+  --elev-soft: 0 1px 2px rgb(36 36 38 / 0.05), 0 2px 8px -2px rgb(36 36 38 / 0.06);
+  --elev-lift: 0 2px 4px rgb(36 36 38 / 0.05), 0 10px 24px -8px rgb(36 36 38 / 0.18);
+
+  --radius: 0.75rem;
 }
 
 .dark {
-  --background: #0a0e14;
-  --foreground: #e6eaf0;
-  --card: #10151d;
-  --card-foreground: #e6eaf0;
-  --popover: #131924;
-  --popover-foreground: #e6eaf0;
-  --primary: #e6eaf0;
-  --primary-foreground: #10151d;
-  --secondary: #1a212c;
-  --secondary-foreground: #e6eaf0;
-  --muted: #161c26;
-  --muted-foreground: #8b96a5;
-  --accent: #1b222e;
-  --accent-foreground: #e6eaf0;
-  --destructive: #f04438;
+  --background: #1b1b1d;
+  --foreground: #fcfffd;
+  --card: #242426;
+  --card-foreground: #fcfffd;
+  --popover: #2a2a2d;
+  --popover-foreground: #fcfffd;
+  --primary: #fcfffd;
+  --primary-foreground: #242426;
+  --secondary: #2e2e31;
+  --secondary-foreground: #fcfffd;
+  --muted: #2a2a2d;
+  --muted-foreground: #a0a0a4;
+  --accent: #2c3338;
+  --accent-foreground: #fcfffd;
+  --destructive: #f2555a;
   --destructive-foreground: #ffffff;
-  --border: #1e2531;
-  --input: #29313f;
-  --ring: #ff6a38;
+  --border: #333336;
+  --input: #3f3f43;
+  --ring: #2c9fd6;
 
-  --pops: #ff6a38;
-  --pops-foreground: #14181f;
-  --pops-soft: #2a1a12;
+  --pops: #3aa6dc;
+  --pops-foreground: #fcfffd;
+  --pops-soft: #1c3341;
+  --brand: #198ac2;
+  --brand-foreground: #fcfffd;
 
-  --sidebar: #0d1118;
-  --sidebar-foreground: #a8b2c0;
-  --sidebar-border: #171d27;
-  --sidebar-accent: #1a212c;
-  --sidebar-accent-foreground: #e6eaf0;
+  --sidebar: #242426;
+  --sidebar-foreground: #a9a9ad;
+  --sidebar-border: #2f2f32;
+  --sidebar-accent: #2f2f33;
+  --sidebar-accent-foreground: #fcfffd;
 
-  --score-frio: #6d9aec;
-  --score-tibio: #eaa93d;
-  --score-caliente: #ff6a38;
-  --score-cierre: #2cc385;
+  --score-frio: #7cc8ee;
+  --score-tibio: #facc15;
+  --score-caliente: #fb923c;
+  --score-cierre: #3ccb7f;
 
-  --health-green: #2cc385;
-  --health-yellow: #eaa93d;
-  --health-red: #f04438;
+  --health-green: #3ccb7f;
+  --health-yellow: #f5b83d;
+  --health-red: #f2555a;
 
-  /* Paleta de gráficos dark — validada con dataviz (banda L 0.48–0.67 sobre #10151d) */
-  --chart-1: #e2571f;
-  --chart-2: #4f83dd;
-  --chart-3: #149565;
-  --chart-4: #bd861a;
-  --chart-5: #7f72e4;
+  --chart-1: #3aa6dc;
+  --chart-2: #e4e6e5;
+  --chart-3: #7d7d7d;
+  --chart-4: #8ccbe8;
+  --chart-5: #f2555a;
+
+  --elev-soft: 0 1px 2px rgb(0 0 0 / 0.35);
+  --elev-lift: 0 2px 4px rgb(0 0 0 / 0.35), 0 10px 24px -8px rgb(0 0 0 / 0.55);
 }
 
 @theme inline {
@@ -128,6 +139,11 @@
   --color-pops: var(--pops);
   --color-pops-foreground: var(--pops-foreground);
   --color-pops-soft: var(--pops-soft);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+
+  --shadow-soft: var(--elev-soft);
+  --shadow-lift: var(--elev-lift);
 
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
@@ -156,7 +172,7 @@
   --radius-xl: calc(var(--radius) + 4px);
 
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "Archivo Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, "Cascadia Code", "Segoe UI Mono", monospace;
 }
 
@@ -174,6 +190,11 @@
     @apply bg-background text-foreground font-sans antialiased;
     font-feature-settings: "cv11";
   }
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.015em;
+  }
   ::selection {
     background: color-mix(in srgb, var(--pops) 25%, transparent);
   }
@@ -190,6 +211,10 @@
 @layer utilities {
   .font-display {
     font-family: var(--font-display);
+  }
+  /* Palabra destacada (saludo, "IQ" del logo) */
+  .text-highlight {
+    color: var(--pops);
   }
   .nums {
     font-variant-numeric: tabular-nums;

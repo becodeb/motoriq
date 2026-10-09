@@ -14,7 +14,7 @@ import { CustomerStatusBadge, SourceBadge } from "@/components/shared/badges";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { Pager } from "@/components/shared/pager";
-import { ScoreRingExplained } from "@/components/shared/score-ring";
+import { ScoreBadge, ScoreLegend, ScoreRingExplained, scoreColor } from "@/components/shared/score-ring";
 import { UserChip } from "@/components/shared/user-chip";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -28,20 +28,22 @@ import { ImportDialog } from "@/features/import-dialog";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useTeam } from "@/hooks/use-org";
 import { api } from "@/lib/api";
-import { CUSTOMER_STATUS, SCORE_LABELS, SOURCES } from "@/lib/constants";
+import { CUSTOMER_STATUS, SOURCES } from "@/lib/constants";
 import { dateShort, relative } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { isManager, useAuth } from "@/stores/auth";
 import type { Customer, Page, Segment } from "@/types/api";
 
-const SMART_LISTS = [
+const SMART_LISTS: readonly { label: string; params: Record<string, string>; score?: string }[] = [
   { label: "Todos", params: {} },
-  { label: "🔥 Calientes", params: { score_label: "caliente" } },
-  { label: "🚀 Cierre probable", params: { score_label: "cierre" } },
+  { label: "Cierre probable", params: { score_label: "cierre" }, score: "cierre" },
+  { label: "Calientes", params: { score_label: "caliente" }, score: "caliente" },
+  { label: "Tibios", params: { score_label: "tibio" }, score: "tibio" },
+  { label: "Fríos", params: { score_label: "frio" }, score: "frio" },
   { label: "Esperando respuesta", params: { awaiting_reply: "1" } },
   { label: "Seguimiento vencido", params: { followup: "vencido" } },
   { label: "Sin seguimiento", params: { followup: "sin" } },
-] as const;
+];
 
 const FILTER_KEYS = ["q", "status", "source", "assigned_user_id", "score_label", "awaiting_reply", "followup", "order_by"];
 
@@ -143,15 +145,22 @@ export function CustomersPage() {
         id: "cliente",
         header: () => <SortHeader column="first_name">Cliente</SortHeader>,
         cell: ({ row }) => (
-          <div className="min-w-44">
-            <p className="font-medium">{row.original.full_name}</p>
-            <p className="text-xs text-muted-foreground">{row.original.phone ?? row.original.email ?? "—"}</p>
+          <div className="flex min-w-44 items-center gap-2.5">
+            <span
+              className="h-9 w-1 shrink-0 rounded-full"
+              style={{ backgroundColor: scoreColor(row.original.score_label) }}
+              aria-hidden
+            />
+            <div className="min-w-0">
+              <p className="font-medium">{row.original.full_name}</p>
+              <p className="text-xs text-muted-foreground">{row.original.phone ?? row.original.email ?? "—"}</p>
+            </div>
           </div>
         ),
       }),
       columnHelper.display({
         id: "score",
-        header: () => <SortHeader column="lead_score">Score</SortHeader>,
+        header: () => <SortHeader column="lead_score">Intención</SortHeader>,
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
             <ScoreRingExplained
@@ -161,9 +170,7 @@ export function CustomersPage() {
               factors={row.original.score_factors}
               size="sm"
             />
-            <span className="hidden text-xs text-muted-foreground xl:inline">
-              {SCORE_LABELS[row.original.score_label]?.emoji}
-            </span>
+            <ScoreBadge label={row.original.score_label} className="hidden lg:inline-flex" />
           </div>
         ),
       }),
@@ -274,6 +281,8 @@ export function CustomersPage() {
         }
       />
 
+      <ScoreLegend />
+
       {/* Smart lists (§83) + segmentos guardados (§82) */}
       <div className="flex flex-wrap items-center gap-1.5">
         {SMART_LISTS.map((list, index) => (
@@ -293,6 +302,12 @@ export function CustomersPage() {
                 : "bg-card text-muted-foreground hover:border-ring/50 hover:text-foreground",
             )}
           >
+            {list.score ? (
+              <span
+                className="mr-1.5 inline-block size-2 rounded-full align-middle"
+                style={{ backgroundColor: scoreColor(list.score) }}
+              />
+            ) : null}
             {list.label}
           </button>
         ))}

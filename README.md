@@ -53,7 +53,7 @@ cd backend
 py -3.12 -m venv .venv
 .\.venv\Scripts\pip install -r requirements-dev.txt
 .\.venv\Scripts\python -m alembic upgrade head     # crea el schema (31 tablas)
-.\.venv\Scripts\python -m app.seed                 # datos demo (¡recomendado!)
+.\.venv\Scripts\python -m app.seed                 # base limpia + cuentas de prueba
 .\.venv\Scripts\python -m uvicorn app.main:app --port 8000
 
 # 2 · Frontend (otra terminal)
@@ -68,7 +68,18 @@ O directamente, después de la primera instalación:
 .\start.ps1
 ```
 
-**Credenciales demo** (contraseña `demo1234` para todas):
+### Base limpia, lista para usar
+
+`python -m app.seed` deja una base **sin datos de ejemplo**: una agencia vacía («Agencia Demo») con las
+cuentas de prueba de abajo y la configuración base (etapas del pipeline, etiquetas y automatizaciones
+recomendadas). No hay clientes, conversaciones, stock ni ventas ficticias.
+
+Cualquier agencia puede crear **su propia cuenta** desde la pantalla de login («Creá tu cuenta gratis»):
+se genera una organización nueva, privada y aislada, con el creador como administrador. Desde
+Configuración se personaliza la agencia (nombre, moneda, zona horaria, logo), se suma al equipo y se
+ajusta el pipeline. Para desactivar el registro público: `POPS_ALLOW_SIGNUP=false`.
+
+**Cuentas de prueba** (contraseña `demo1234` para todas — se muestran en el login mientras `POPS_DEMO_MODE=true`):
 
 | Email | Rol |
 |---|---|
@@ -76,11 +87,12 @@ O directamente, después de la primera instalación:
 | `gerente@motoriq.demo` | Gerente |
 | `lucas@motoriq.demo` · `sofia@motoriq.demo` · `diego@motoriq.demo` | Vendedores |
 
-El seed crea una agencia viva: 50+ clientes con conversaciones reales que disparan el scoring,
-28 vehículos del mercado argentino con fotos, oportunidades en todas las etapas, ventas históricas
-para los analytics, seguimientos de hoy/vencidos y matches ya calculados. Es determinístico
-(`random.Random(42)`) con fechas relativas al momento de ejecución. Para volver al estado demo
-prístino: `python -m app.seed` (borra y recrea todo).
+**Datos de demostración (opcional).** `python -m app.seed --demo` siembra además una agencia viva y
+ficticia — 50+ clientes con conversaciones, 28 vehículos con fotos, oportunidades en todas las etapas,
+ventas históricas y matches ya calculados — útil para presentar el producto. Es determinístico
+(`random.Random(42)`) con fechas relativas al momento de ejecución.
+
+> ⚠️ Ambos modos del seed **borran la base y la recrean**. No lo corras sobre datos reales.
 
 ## Variables de entorno
 

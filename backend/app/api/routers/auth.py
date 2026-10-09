@@ -24,11 +24,14 @@ from app.schemas.auth import (
     ForgotPasswordResponse,
     LoginRequest,
     ProfileUpdate,
+    PublicConfig,
+    RegisterRequest,
     ResetPasswordRequest,
     TokenResponse,
     UserOut,
 )
 from app.schemas.common import Msg
+from app.services import audit, onboarding
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -52,6 +55,58 @@ def _set_refresh_cookie(response: Response, token: str) -> None:
 def _rate_limit(request: Request) -> None:
     if get_settings().rate_limit_enabled:
         auth_limiter.check(client_ip(request))
+
+
+@router.get("/config", response_model=PublicConfig)
+def public_config():
+    """Configuración pública que necesita la pantalla de login (sin sesión)."""
+    settings = get_settings()
+    return PublicConfig(
+        app_name=settings.app_name,
+        demo_mode=settings.demo_mode,
+        allow_signup=settings.allow_signup,
+    )
+
+
+@router.post("/register", response_model=TokenResponse, status_code=201)
+def register(data: RegisterRequest, db: DB, request: Request, response: Response):
+    """Alta de una agencia nueva: crea la organización (vacía, con su configuración
+    base) y su primer usuario administrador, y deja la sesión iniciada."""
+    _rate_limit(request)
+    if not get_settings().allow_signup:
+        raise ApiError("SIGNUP_DISABLED", "El registro de nuevas agencias está deshabilitado", 403)
+    email = data.email.lower().strip()
+    if db.scalar(select(User.id).where(User.email == email)):
+        raise ApiError("EMAIL_TAKEN", "Ya existe un usuario con ese email", 409)
+
+    org = onboarding.create_organization(
+        db,
+        name=data.company_name.strip(),
+        currency=data.currency.upper(),
+        timezone=data.timezone,
+    )
+    user = User(
+        organization_id=org.id,
+        email=email,
+        password_hash=hash_password(data.password),
+        first_name=data.first_name.strip(),
+        last_name=data.last_name.strip(),
+        role="admin",
+        phone=data.phone or None,
+        avatar_color="cyan",
+        last_login_at=utcnow(),
+    )
+    db.add(user)
+    db.flush()
+    audit.log(db, org.id, "organizacion_creada", "organization", org.id, user.id, {"nombre": org.name})
+    db.commit()
+    db.refresh(user)
+
+    _set_refresh_cookie(response, create_refresh_token(user.id, user.token_version))
+    return TokenResponse(
+        access_token=create_access_token(user.id, user.organization_id, user.role),
+        user=UserOut.model_validate(user),
+    )
 
 
 @router.post("/login", response_model=TokenResponse)

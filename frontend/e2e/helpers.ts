@@ -6,7 +6,7 @@ export async function login(page: Page, email = CREDENTIALS.email) {
   await page.goto("/login");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Contraseña").fill(CREDENTIALS.password);
-  await page.getByRole("button", { name: "Entrar" }).click();
+  await page.getByRole("button", { name: "Ingresar" }).click();
   await expect(page.getByText(/Buen día|Buenas tardes|Buenas noches/)).toBeVisible({ timeout: 10_000 });
 }
 

@@ -31,7 +31,7 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "fixed left-1/2 top-1/2 z-50 grid w-full -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl border bg-card p-5 shadow-2xl anim-zoom-in",
+          "fixed left-1/2 top-1/2 z-50 grid w-full -translate-x-1/2 -translate-y-1/2 gap-4 rounded-2xl border bg-card p-6 shadow-2xl anim-zoom-in",
           wide ? "max-w-[calc(100%-2rem)] sm:max-w-3xl" : "max-w-[calc(100%-2rem)] sm:max-w-lg",
           "max-h-[90dvh] overflow-y-auto scrollbar-thin",
           className,

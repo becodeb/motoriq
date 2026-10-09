@@ -25,18 +25,18 @@ export function Topbar({ onOpenMobileNav }: { onOpenMobileNav: () => void }) {
   const setQuickCreate = useUI((s) => s.setQuickCreate);
 
   return (
-    <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b bg-background/85 px-4 backdrop-blur lg:px-6">
+    <header className="sticky top-0 z-20 flex h-16 items-center gap-2 border-b border-border/70 bg-background/75 px-4 backdrop-blur-xl lg:px-8">
       <Button variant="ghost" size="icon-sm" className="lg:hidden" onClick={onOpenMobileNav} aria-label="Abrir menú">
         <Menu />
       </Button>
 
       <button
         onClick={() => setCommandOpen(true)}
-        className="flex h-9 w-full max-w-sm items-center gap-2 rounded-md border bg-card px-3 text-sm text-muted-foreground transition-colors hover:bg-accent outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+        className="flex h-10 w-full max-w-md items-center gap-2.5 rounded-xl border bg-card px-3.5 text-sm text-muted-foreground shadow-xs transition-colors hover:border-pops/30 outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
       >
         <Search className="size-4" />
         <span className="truncate">Buscar clientes, vehículos, teléfonos…</span>
-        <kbd className="ml-auto hidden rounded border bg-muted px-1.5 py-0.5 text-[10px] font-medium sm:block">
+        <kbd className="ml-auto hidden rounded-md border bg-muted px-1.5 py-0.5 text-[10px] font-medium sm:block">
           Ctrl K
         </kbd>
       </button>
@@ -66,7 +66,7 @@ export function Topbar({ onOpenMobileNav }: { onOpenMobileNav: () => void }) {
         {user ? (
           <DropdownMenu>
             <DropdownMenuTrigger className="ml-1 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring/50">
-              <UserAvatar user={user} className="size-8 text-[11px]" />
+              <UserAvatar user={user} className="size-9 text-[11px] ring-2 ring-pops/15" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>

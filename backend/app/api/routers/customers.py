@@ -243,7 +243,7 @@ def update_customer(customer_id: str, data: CustomerUpdate, db: DB, user: Curren
 @router.delete("/{customer_id}", response_model=Msg)
 def delete_customer(customer_id: str, db: DB, manager: ManagerUser, org: CurrentOrg):
     customer = _get_customer(db, org, customer_id)
-    customer.deleted_at = utcnow()
+    customers_service.soft_delete_customer(db, customer)
     audit.log(db, org.id, "cliente_eliminado", "customer", customer.id, manager.id, {"nombre": customer.full_name})
     db.commit()
     return Msg(message=f"{customer.full_name} eliminado")

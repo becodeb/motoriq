@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     # Modo demo: muestra las credenciales seed en /login y devuelve el token de reset
     # de contraseña en la respuesta (no hay SMTP en desarrollo).
     demo_mode: bool = True
+    # Registro público: cualquier agencia puede crear su cuenta desde /login.
+    allow_signup: bool = True
     testing: bool = False
 
     secret_key: str = "pops-dev-secret-cambiar-en-produccion"

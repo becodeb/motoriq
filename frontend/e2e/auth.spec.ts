@@ -6,7 +6,7 @@ test("login inválido muestra el error sin salir de la pantalla", async ({ page 
   await page.goto("/login");
   await page.getByLabel("Email").fill(CREDENTIALS.email);
   await page.getByLabel("Contraseña").fill("clave-incorrecta");
-  await page.getByRole("button", { name: "Entrar" }).click();
+  await page.getByRole("button", { name: "Ingresar" }).click();
   await expect(page.getByText("Email o contraseña incorrectos")).toBeVisible();
   await expect(page).toHaveURL(/\/login/);
 });

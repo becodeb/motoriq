@@ -26,12 +26,18 @@ export const AVATAR_BG: Record<string, string> = {
   orange: "bg-orange-500",
 };
 
-export const SCORE_LABELS: Record<string, { label: string; emoji: string; color: string; text: string }> = {
-  frio: { label: "Frío", emoji: "🧊", color: "var(--score-frio)", text: "text-score-frio" },
-  tibio: { label: "Tibio", emoji: "🌤", color: "var(--score-tibio)", text: "text-score-tibio" },
-  caliente: { label: "Caliente", emoji: "🔥", color: "var(--score-caliente)", text: "text-score-caliente" },
-  cierre: { label: "Cierre probable", emoji: "🚀", color: "var(--score-cierre)", text: "text-score-cierre" },
+/** Niveles de intención de compra (umbrales en backend/app/core/constants.py). */
+export const SCORE_LABELS: Record<
+  string,
+  { label: string; plural: string; emoji: string; color: string; text: string; range: string }
+> = {
+  frio: { label: "Frío", plural: "Fríos", emoji: "🧊", color: "var(--score-frio)", text: "text-score-frio", range: "0–39" },
+  tibio: { label: "Tibio", plural: "Tibios", emoji: "🌤", color: "var(--score-tibio)", text: "text-score-tibio", range: "40–64" },
+  caliente: { label: "Caliente", plural: "Calientes", emoji: "🔥", color: "var(--score-caliente)", text: "text-score-caliente", range: "65–84" },
+  cierre: { label: "Cierre probable", plural: "Cierre probable", emoji: "🚀", color: "var(--score-cierre)", text: "text-score-cierre", range: "85–99" },
 };
+
+export const SCORE_ORDER = ["frio", "tibio", "caliente", "cierre"] as const;
 
 export const CUSTOMER_STATUS: Record<string, { label: string; color: string }> = {
   lead: { label: "Lead", color: "sky" },
@@ -161,6 +167,7 @@ export const AI_PROVIDERS: Record<string, string> = {
   openai: "OpenAI",
   anthropic: "Anthropic",
   gemini: "Google Gemini",
+  openrouter: "OpenRouter",
   openai_compat: "Compatible OpenAI (custom)",
 };
 
