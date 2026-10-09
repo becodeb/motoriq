@@ -17,7 +17,7 @@ import { useNavigate } from "react-router";
 import { HealthDot } from "@/components/shared/badges";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
-import { ScoreRing } from "@/components/shared/score-ring";
+import { ScoreRing, scoreAccentStyle } from "@/components/shared/score-ring";
 import { UserAvatar } from "@/components/shared/user-chip";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -45,6 +45,7 @@ function OpportunityCard({
         "cursor-grab space-y-2 rounded-lg border bg-card p-3 transition-shadow",
         dragging ? "rotate-2 shadow-xl" : "hover:border-ring/40",
       )}
+      style={scoreAccentStyle(opportunity.customer.score_label)}
       onClick={onClick}
     >
       <div className="flex items-center justify-between gap-2">

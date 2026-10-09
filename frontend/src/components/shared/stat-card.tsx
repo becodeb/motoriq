@@ -25,10 +25,10 @@ export function StatCard({
   const bad = delta !== null && delta !== 0 && !good;
 
   return (
-    <Card className={cn("gap-1.5 px-4 py-3.5", className)}>
-      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
+    <Card className={cn("gap-2 px-5 py-4", className)}>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">{label}</p>
       <div className="flex items-baseline justify-between gap-2">
-        <span className="font-display text-2xl font-bold nums leading-none">{value}</span>
+        <span className="font-display text-[28px] font-bold nums leading-none tracking-tight">{value}</span>
         {delta !== null && delta !== 0 ? (
           <span
             className={cn(

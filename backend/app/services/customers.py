@@ -194,3 +194,32 @@ def merge_customers(db: Session, org: Organization, actor: User, target: Custome
         {"origen": source.full_name, "origen_id": source.id},
     )
     return target
+
+
+def soft_delete_customer(db: Session, customer: Customer) -> None:
+    """Baja de un cliente: lo oculta y cierra todo lo que tenía pendiente, para que
+    no siga apareciendo en el pipeline, la agenda, el radar ni los pronósticos.
+    El historial ya cerrado (ventas ganadas, notas, auditoría) se conserva."""
+    now = utcnow()
+    customer.deleted_at = now
+    db.execute(
+        update(Opportunity)
+        .where(Opportunity.customer_id == customer.id, Opportunity.status == "abierta")
+        .values(status="perdida", lost_reason="Cliente eliminado", closed_at=now)
+    )
+    db.execute(
+        update(Followup)
+        .where(Followup.customer_id == customer.id, Followup.status.in_(("sugerido", "pendiente")))
+        .values(status="cancelado")
+    )
+    db.execute(
+        update(Task)
+        .where(Task.customer_id == customer.id, Task.status == "pendiente")
+        .values(status="cancelada")
+    )
+    db.execute(
+        update(Appointment)
+        .where(Appointment.customer_id == customer.id, Appointment.status == "agendada")
+        .values(status="cancelada")
+    )
+    db.flush()

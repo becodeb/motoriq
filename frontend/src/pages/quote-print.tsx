@@ -52,7 +52,7 @@ export function QuotePrintPage() {
           <div>
             <p className="font-display text-2xl font-extrabold tracking-tight">
               {org.data?.name ?? "Motor IQ"}
-              <span className="text-[#e85d2c]">.</span>
+              <span className="text-[#198ac2]">.</span>
             </p>
             <p className="mt-1 text-sm text-zinc-500">Cotización de vehículo</p>
           </div>

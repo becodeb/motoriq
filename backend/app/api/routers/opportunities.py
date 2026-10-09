@@ -38,7 +38,12 @@ def list_opportunities(
     q: str | None = None,
     order_by: str = "-updated_at",
 ):
-    query = select(Opportunity).where(Opportunity.organization_id == org.id)
+    # Las oportunidades de clientes eliminados no se listan.
+    query = (
+        select(Opportunity)
+        .join(Customer, Customer.id == Opportunity.customer_id)
+        .where(Opportunity.organization_id == org.id, Customer.deleted_at.is_(None))
+    )
     if status:
         query = query.where(Opportunity.status == status)
     if customer_id:
@@ -49,9 +54,7 @@ def list_opportunities(
         query = query.where(Opportunity.owner_user_id == owner_user_id)
     if q:
         like = f"%{q.strip()}%"
-        query = query.join(Customer, Customer.id == Opportunity.customer_id).where(
-            (Customer.first_name + " " + Customer.last_name).ilike(like)
-        )
+        query = query.where((Customer.first_name + " " + Customer.last_name).ilike(like))
     total = db.scalar(select(func.count()).select_from(query.subquery())) or 0
     columns = {
         "updated_at": Opportunity.updated_at,
@@ -74,8 +77,11 @@ def kanban(db: DB, user: CurrentUser, org: CurrentOrg):
 
     cutoff = utcnow() - timedelta(days=30)
     items = db.scalars(
-        select(Opportunity).where(
+        select(Opportunity)
+        .join(Customer, Customer.id == Opportunity.customer_id)
+        .where(
             Opportunity.organization_id == org.id,
+            Customer.deleted_at.is_(None),
             (Opportunity.status == "abierta") | (Opportunity.closed_at >= cutoff),
         ).order_by(Opportunity.updated_at.desc()).limit(400)
     ).all()

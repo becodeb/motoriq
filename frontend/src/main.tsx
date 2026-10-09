@@ -1,5 +1,5 @@
 import "@fontsource-variable/inter";
-import "@fontsource-variable/archivo";
+import "@fontsource-variable/plus-jakarta-sans";
 import "./index.css";
 
 import { StrictMode } from "react";

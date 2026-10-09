@@ -6,10 +6,14 @@ import {
   Building2,
   ChevronDown,
   Kanban,
+  Monitor,
+  Moon,
+  Palette,
   Plug,
   Plus,
   ShieldCheck,
   Sparkles,
+  Sun,
   UserRound,
   Users,
   Zap,
@@ -45,6 +49,7 @@ import { AI_PROVIDERS, AVATAR_BG, COLOR_BADGE, ROLES } from "@/lib/constants";
 import { dateTime, num } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/stores/auth";
+import { useUI, type Theme } from "@/stores/ui";
 import type {
   AIUsageSummary,
   AuditLog,
@@ -73,6 +78,7 @@ export function SettingsPage() {
 
   const sections = [
     { path: "perfil", label: "Mi perfil", icon: UserRound, show: true },
+    { path: "apariencia", label: "Apariencia", icon: Palette, show: true },
     { path: "agencia", label: "Agencia", icon: Building2, show: admin },
     { path: "usuarios", label: "Usuarios", icon: Users, show: manager },
     { path: "pipeline", label: "Pipeline", icon: Kanban, show: manager },
@@ -106,6 +112,7 @@ export function SettingsPage() {
           <Routes>
             <Route index element={<Navigate to="perfil" replace />} />
             <Route path="perfil" element={<ProfileSection />} />
+            <Route path="apariencia" element={<AppearanceSection />} />
             {admin ? <Route path="agencia" element={<AgencySection />} /> : null}
             {manager ? <Route path="usuarios" element={<UsersSection admin={admin} />} /> : null}
             {manager ? <Route path="pipeline" element={<PipelineSection />} /> : null}
@@ -118,6 +125,103 @@ export function SettingsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+/* ── Apariencia ── */
+
+const THEME_OPTIONS: {
+  value: Theme;
+  label: string;
+  description: string;
+  icon: typeof Sun;
+  preview: "light" | "dark" | "split";
+}[] = [
+  { value: "light", label: "Claro", description: "Fondo claro, ideal para ambientes iluminados.", icon: Sun, preview: "light" },
+  { value: "dark", label: "Oscuro", description: "Menos brillo, más cómodo de noche.", icon: Moon, preview: "dark" },
+  { value: "system", label: "Automático", description: "Sigue la configuración de tu dispositivo.", icon: Monitor, preview: "split" },
+];
+
+function ThemePreview({ variant }: { variant: "light" | "dark" }) {
+  const dark = variant === "dark";
+  return (
+    <div className={cn("flex h-full w-full", dark ? "bg-[#1c1c1e]" : "bg-[#f2f4f3]")}>
+      <div className="flex w-[28%] flex-col gap-1 bg-[#242426] p-1.5">
+        <span className="size-2.5 rounded-[3px] bg-[#198ac2]" />
+        <span className="mt-1 h-1 w-full rounded-full bg-[#198ac2]/70" />
+        <span className="h-1 w-3/4 rounded-full bg-white/20" />
+        <span className="h-1 w-2/3 rounded-full bg-white/20" />
+      </div>
+      <div className="flex flex-1 flex-col gap-1.5 p-2">
+        <span className={cn("h-1.5 w-1/2 rounded-full", dark ? "bg-white/70" : "bg-[#242426]/80")} />
+        <div className="grid flex-1 grid-cols-2 gap-1.5">
+          <span className={cn("rounded-[4px]", dark ? "bg-[#242426]" : "bg-[#fcfffd] shadow-xs")} />
+          <span className={cn("rounded-[4px]", dark ? "bg-[#242426]" : "bg-[#fcfffd] shadow-xs")} />
+        </div>
+        <span className="h-2 w-1/3 self-end rounded-[3px] bg-[#198ac2]" />
+      </div>
+    </div>
+  );
+}
+
+function AppearanceSection() {
+  const { theme, setTheme } = useUI();
+
+  return (
+    <Card className="gap-4 px-4 py-4">
+      <div>
+        <CardTitle className="text-sm">Tema</CardTitle>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Elegí cómo se ve Motor IQ. La preferencia se guarda en este navegador.
+        </p>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-3" role="radiogroup" aria-label="Tema">
+        {THEME_OPTIONS.map((option) => {
+          const active = theme === option.value;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              onClick={() => setTheme(option.value)}
+              className={cn(
+                "group flex flex-col gap-3 rounded-xl border-2 p-2.5 text-left transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+                active ? "border-pops" : "border-border hover:border-muted-foreground/40",
+              )}
+            >
+              <div className="h-24 overflow-hidden rounded-lg border">
+                {option.preview === "split" ? (
+                  <div className="relative h-full">
+                    <ThemePreview variant="light" />
+                    <div className="absolute inset-0 [clip-path:polygon(100%_0,100%_100%,0_100%)]">
+                      <ThemePreview variant="dark" />
+                    </div>
+                  </div>
+                ) : (
+                  <ThemePreview variant={option.preview} />
+                )}
+              </div>
+              <div className="flex items-start gap-2 px-0.5">
+                <option.icon className={cn("mt-0.5 size-4 shrink-0", active ? "text-pops" : "text-muted-foreground")} />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold">{option.label}</p>
+                  <p className="text-xs text-muted-foreground">{option.description}</p>
+                </div>
+                <span
+                  className={cn(
+                    "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border-2",
+                    active ? "border-pops" : "border-input",
+                  )}
+                >
+                  {active ? <span className="size-1.5 rounded-full bg-pops" /> : null}
+                </span>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </Card>
   );
 }
 
@@ -762,15 +866,22 @@ function AISection() {
               </SelectContent>
             </Select>
           </Field>
-          <Field label="Modelo" hint="Vacío = default del proveedor">
-            <Input value={model} onChange={(e) => setModel(e.target.value)} placeholder="gpt-4o-mini · claude-haiku-4-5…" />
+          <Field
+            label="Modelo"
+            hint={provider === "openrouter" ? "Formato proveedor/modelo. Vacío = openai/gpt-4o-mini" : "Vacío = default del proveedor"}
+          >
+            <Input
+              value={model}
+              onChange={(e) => setModel(e.target.value)}
+              placeholder={provider === "openrouter" ? "openai/gpt-4o-mini · anthropic/claude-haiku-4.5…" : "gpt-4o-mini · claude-haiku-4-5…"}
+            />
           </Field>
           <Field
             label="API key"
             className="sm:col-span-2"
             hint={org.data?.ai_api_key_set ? `Configurada (${org.data.ai_api_key_hint}). Escribí una nueva para reemplazarla.` : "Se guarda en tu servidor; nunca llega al navegador."}
           >
-            <Input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="sk-…" autoComplete="off" />
+            <Input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder={provider === "openrouter" ? "sk-or-v1-…" : "sk-…"} autoComplete="off" />
           </Field>
           {provider === "openai_compat" ? (
             <Field label="Base URL" className="sm:col-span-2">

@@ -2,6 +2,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router";
 
+import { Logo } from "@/components/shared/logo";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppLayout } from "@/layout/app-layout";
@@ -30,9 +31,8 @@ import { useAuth } from "@/stores/auth";
 function Splash() {
   return (
     <div className="flex min-h-dvh items-center justify-center bg-background">
-      <div className="flex items-center gap-2 font-display text-2xl font-bold">
-        Motor IQ
-        <span className="size-2 rounded-full bg-pops anim-pulse-dot" />
+      <div className="anim-pulse-dot">
+        <Logo markClassName="size-10" />
       </div>
     </div>
   );

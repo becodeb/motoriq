@@ -3,10 +3,22 @@ import { create } from "zustand";
 import { api, bindAuthHandlers, setAccessToken } from "@/lib/api";
 import type { UserOut } from "@/types/api";
 
+export interface RegisterPayload {
+  company_name: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  password: string;
+  phone?: string;
+  currency: string;
+  timezone: string;
+}
+
 interface AuthState {
   user: UserOut | null;
   status: "loading" | "authenticated" | "anonymous";
   login: (email: string, password: string) => Promise<void>;
+  register: (data: RegisterPayload) => Promise<void>;
   logout: () => Promise<void>;
   bootstrap: () => Promise<void>;
   setUser: (user: UserOut) => void;
@@ -18,6 +30,12 @@ export const useAuth = create<AuthState>((set) => ({
 
   login: async (email, password) => {
     const data = await api.post<{ access_token: string; user: UserOut }>("/auth/login", { email, password });
+    setAccessToken(data.access_token);
+    set({ user: data.user, status: "authenticated" });
+  },
+
+  register: async (payload) => {
+    const data = await api.post<{ access_token: string; user: UserOut }>("/auth/register", payload);
     setAccessToken(data.access_token);
     set({ user: data.user, status: "authenticated" });
   },

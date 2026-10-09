@@ -1,6 +1,12 @@
-"""Seed demo de POPS (§58): una agencia viva desde el primer login.
+"""Seed de Motor IQ.
 
-Ejecutar:  python -m app.seed
+    python -m app.seed          → base limpia: una agencia vacía con las cuentas de prueba
+                                  (admin, gerente y 3 vendedores) y su configuración base.
+                                  Lista para cargar clientes y stock reales.
+    python -m app.seed --demo   → además siembra una agencia viva de demostración (§58):
+                                  clientes, conversaciones, stock y ventas ficticias.
+
+Ambos modos BORRAN la base y la recrean.
 
 Los motores reales (scoring, matching, insights, salud) corren sobre los datos
 sembrados — los números que ves en la UI salen del mismo código de producción.
@@ -21,7 +27,6 @@ from app.database.base import Base
 from app.database.session import SessionLocal, engine
 from app.models import (
     Appointment,
-    Automation,
     Conversation,
     Customer,
     CustomerNote,
@@ -31,7 +36,6 @@ from app.models import (
     Message,
     Opportunity,
     OpportunityStageHistory,
-    Organization,
     PipelineStage,
     Quote,
     Segment,
@@ -44,7 +48,7 @@ from app.models import (
     VehicleStatusHistory,
 )
 from app.seed_assets import vehicle_svg
-from app.services import audit, insights, matching, scoring
+from app.services import audit, insights, matching, onboarding, scoring
 from app.services.opportunities import refresh_health
 
 rng = random.Random(42)
@@ -137,7 +141,7 @@ SOURCES_POOL = (
 )
 
 
-def run() -> None:
+def run(demo: bool = False) -> None:
     settings = get_settings()
     print("→ Reiniciando base de datos…")
     Base.metadata.drop_all(engine)
@@ -145,7 +149,7 @@ def run() -> None:
 
     db = SessionLocal()
     try:
-        _seed(db, settings)
+        _seed(db, settings, demo)
         db.commit()
     except Exception:
         db.rollback()
@@ -158,45 +162,25 @@ def run() -> None:
 
     run_tick()
 
-    print("\n✅ Seed completo.")
-    print("   Org:    Motor IQ (USD · es-AR · America/Argentina/Buenos_Aires)")
+    print("\n✅ Seed completo" + (" con datos de demostración." if demo else " — base limpia, sin datos de ejemplo."))
+    print("   Org:    Agencia Demo (USD · es-AR · America/Argentina/Buenos_Aires)")
     print("   Login:  admin@motoriq.demo / demo1234   (administrador)")
     print("           gerente@motoriq.demo / demo1234 (gerente)")
     print("           lucas@motoriq.demo · sofia@motoriq.demo · diego@motoriq.demo / demo1234 (vendedores)")
 
 
-def _seed(db, settings) -> None:
-    org = Organization(
-        name="Motor IQ",
-        currency="USD",
-        locale="es-AR",
-        timezone="America/Argentina/Buenos_Aires",
-        lead_distribution="round_robin",
-    )
-    db.add(org)
-    db.flush()
-
-    stages: dict[str, PipelineStage] = {}
-    for position, spec in enumerate(DEFAULT_PIPELINE_STAGES):
-        stage = PipelineStage(
-            organization_id=org.id,
-            key=spec["key"],
-            name=spec["name"],
-            position=position,
-            color=spec["color"],
-            probability=spec["probability"],
-            is_won=spec.get("is_won", False),
-            is_lost=spec.get("is_lost", False),
-        )
-        db.add(stage)
-        stages[spec["key"]] = stage
-    db.flush()
+def _seed(db, settings, demo: bool) -> None:
+    org = onboarding.create_organization(db, name="Agencia Demo")
+    stages: dict[str, PipelineStage] = {
+        stage.key: stage
+        for stage in db.scalars(select(PipelineStage).where(PipelineStage.organization_id == org.id))
+    }
 
     print("→ Usuarios…")
     users = {}
     for email, first, last, role, color, created_days in (
-        ("admin@motoriq.demo", "Martín", "Ríos", "admin", "violet", 400),
-        ("gerente@motoriq.demo", "Carla", "Méndez", "gerente", "cyan", 380),
+        ("admin@motoriq.demo", "Martín", "Ríos", "admin", "cyan", 400),
+        ("gerente@motoriq.demo", "Carla", "Méndez", "gerente", "blue", 380),
         ("lucas@motoriq.demo", "Lucas", "Fernández", "vendedor", "emerald", 350),
         ("sofia@motoriq.demo", "Sofía", "Navarro", "vendedor", "amber", 330),
         ("diego@motoriq.demo", "Diego", "Herrera", "vendedor", "rose", 300),
@@ -209,9 +193,9 @@ def _seed(db, settings) -> None:
             last_name=last,
             role=role,
             avatar_color=color,
-            phone=_phone(),
-            last_login_at=d(rng.randint(0, 2)),
-            created_at=d(created_days),
+            phone=_phone() if demo else None,
+            last_login_at=d(rng.randint(0, 2)) if demo else None,
+            created_at=d(created_days) if demo else NOW,
         )
         db.add(user)
         users[email.split("@")[0]] = user
@@ -220,16 +204,12 @@ def _seed(db, settings) -> None:
     # Tiempos de primera respuesta característicos por vendedor (para analytics §37).
     response_profile = {users["lucas"].id: (120, 600), users["sofia"].id: (600, 1500), users["diego"].id: (1200, 3600)}
 
-    print("→ Tags…")
-    tags = {}
-    for name, color in (
-        ("SUV", "blue"), ("Financiación", "violet"), ("Permuta", "amber"), ("Urgente", "red"),
-        ("Cliente anterior", "emerald"), ("Empresa", "zinc"), ("Alta intención", "orange"),
-    ):
-        tag = Tag(organization_id=org.id, name=name, color=color)
-        db.add(tag)
-        tags[name] = tag
-    db.flush()
+    if not demo:
+        return
+
+    tags = {
+        tag.name: tag for tag in db.scalars(select(Tag).where(Tag.organization_id == org.id))
+    }
 
     print("→ Vehículos…")
     upload_root = Path(settings.upload_dir)
@@ -886,38 +866,6 @@ def _seed(db, settings) -> None:
     audit.log(db, org.id, "cliente_creado", "customer", new_leads[0].id, users["gerente"].id, {"nombre": new_leads[0].full_name})
     audit.log(db, org.id, "vehiculo_precio", "vehicle", by_key["Citroën C4 Cactus Feel Pack"].id, users["gerente"].id, {"precio_anterior": 14500, "precio_nuevo": 13900})
 
-    print("→ Automatizaciones…")
-    automations_spec = [
-        (
-            "Asignar leads nuevos",
-            "Cuando entra un lead sin vendedor, lo asigna por round-robin y avisa.",
-            "lead.created",
-            [{"field": "sin_vendedor"}],
-            [{"type": "assign_round_robin"}],
-        ),
-        (
-            "Rescatar clientes calientes inactivos",
-            "Si un cliente con score alto queda 72 h sin actividad, crea una tarea urgente.",
-            "inactivity.72h",
-            [{"field": "score", "op": "gt", "value": 60}],
-            [{"type": "create_task", "params": {"title": "Rescatar a {nombre} — 72 h sin actividad", "priority": "alta", "due_in_hours": 6}}],
-        ),
-        (
-            "Matching de ingresos nuevos",
-            "Cuando ingresa un vehículo, busca clientes compatibles y notifica a los vendedores.",
-            "vehicle.created",
-            [],
-            [{"type": "run_matching"}],
-        ),
-    ]
-    for name, description, trigger, conditions, actions in automations_spec:
-        db.add(
-            Automation(
-                organization_id=org.id, name=name, description=description,
-                trigger=trigger, conditions=conditions, actions=actions, enabled=True,
-            )
-        )
-
     print("→ Segmentos…")
     db.add(Segment(organization_id=org.id, user_id=None, name="Calientes sin respuesta", entity="customers", filters={"score_label": "caliente", "awaiting_reply": True}))
     db.add(Segment(organization_id=org.id, user_id=None, name="Interesados en SUV", entity="customers", filters={"interest_body_type": "suv"}))
@@ -957,4 +905,6 @@ def _seed(db, settings) -> None:
 
 
 if __name__ == "__main__":
-    run()
+    import sys
+
+    run(demo="--demo" in sys.argv[1:])

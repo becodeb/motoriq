@@ -1,6 +1,6 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import { SCORE_LABELS } from "@/lib/constants";
+import { SCORE_LABELS, SCORE_ORDER } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import type { ScoreFactor } from "@/types/api";
 
@@ -9,6 +9,52 @@ const SIZES = {
   md: { box: 42, stroke: 3.5, text: "text-[13px]" },
   lg: { box: 72, stroke: 5, text: "text-[22px]" },
 } as const;
+
+/** Color del nivel de intención de compra (frío → cierre probable). */
+export function scoreColor(label: string | null | undefined): string {
+  return SCORE_LABELS[label ?? ""]?.color ?? "var(--score-frio)";
+}
+
+/** Versión legible del color para usarlo como texto (se acerca al color de texto del tema). */
+export function scoreInk(label: string | null | undefined): string {
+  return `color-mix(in srgb, ${scoreColor(label)} 72%, var(--foreground))`;
+}
+
+/** Borde izquierdo de color según la intención de compra, para tarjetas y filas. */
+export function scoreAccentStyle(label: string | null | undefined): React.CSSProperties {
+  return { borderLeftWidth: 4, borderLeftColor: scoreColor(label) };
+}
+
+/** Píldora con el nivel de intención de compra: ● Caliente */
+export function ScoreBadge({ label, className }: { label: string; className?: string }) {
+  const meta = SCORE_LABELS[label];
+  if (!meta) return null;
+  const color = scoreColor(label);
+  return (
+    <span
+      className={cn("inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-semibold", className)}
+      style={{ backgroundColor: `color-mix(in srgb, ${color} 16%, transparent)`, color: scoreInk(label) }}
+    >
+      <span className="size-1.5 rounded-full" style={{ backgroundColor: color }} />
+      {meta.label}
+    </span>
+  );
+}
+
+/** Referencia de colores: qué significa cada nivel. */
+export function ScoreLegend({ className }: { className?: string }) {
+  return (
+    <div className={cn("flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground", className)}>
+      <span className="font-medium text-foreground">Intención de compra:</span>
+      {SCORE_ORDER.map((key) => (
+        <span key={key} className="inline-flex items-center gap-1.5">
+          <span className="size-2.5 rounded-full" style={{ backgroundColor: scoreColor(key) }} />
+          {SCORE_LABELS[key]!.label} <span className="nums opacity-70">{SCORE_LABELS[key]!.range}</span>
+        </span>
+      ))}
+    </div>
+  );
+}
 
 /** Firma visual de Motor IQ: tacómetro de intención 0–99 (§11, §12, §95). */
 export function ScoreRing({
@@ -29,7 +75,7 @@ export function ScoreRing({
   const circumference = 2 * Math.PI * radius;
   const arc = circumference * sweep;
   const filled = arc * (Math.min(score, 99) / 99);
-  const color = SCORE_LABELS[label]?.color ?? "var(--score-frio)";
+  const color = scoreColor(label);
 
   return (
     <div
@@ -61,7 +107,7 @@ export function ScoreRing({
           style={{ transition: "stroke-dasharray 0.5s ease" }}
         />
       </svg>
-      <span className={cn("absolute font-display font-bold nums leading-none", text)} style={{ color }}>
+      <span className={cn("absolute font-display font-bold nums leading-none", text)} style={{ color: scoreInk(label) }}>
         {score}
       </span>
     </div>
@@ -82,7 +128,6 @@ export function ScoreRingExplained({
   factors?: ScoreFactor[];
   size?: keyof typeof SIZES;
 }) {
-  const meta = SCORE_LABELS[label];
   return (
     <Popover>
       <PopoverTrigger
@@ -94,9 +139,7 @@ export function ScoreRingExplained({
       </PopoverTrigger>
       <PopoverContent className="w-64 p-3" align="start" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between">
-          <p className="text-sm font-semibold">
-            {meta?.emoji} {meta?.label}
-          </p>
+          <ScoreBadge label={label} />
           <span className="font-display text-sm font-bold nums">{score}/100</span>
         </div>
         {reason ? <p className="mt-1 text-xs text-muted-foreground">{reason}</p> : null}
